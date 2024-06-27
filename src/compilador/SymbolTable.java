@@ -4,17 +4,17 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class SymbolTable {
-    private Map<String, Integer> table;
+    private Map<String, Object> table;
 
     public SymbolTable() {
         table = new HashMap<>();
     }
 
-    public void add(String id, int value) {
+    public void add(String id, Object value) {
         table.put(id, value);
     }
 
-    public Integer get(String id) {
+    public Object get(String id) {
         return table.get(id);
     }
 

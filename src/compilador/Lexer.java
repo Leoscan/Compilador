@@ -29,9 +29,9 @@ public class Lexer {
         }
     }
 
-    private String integer() {
+    private String number() {
         StringBuilder result = new StringBuilder();
-        while (currentChar != '\0' && Character.isDigit(currentChar)) {
+        while (currentChar != '\0' && (Character.isDigit(currentChar) || currentChar == '.')) {
             result.append(currentChar);
             advance();
         }
@@ -46,6 +46,17 @@ public class Lexer {
         }
         return result.toString();
     }
+    
+    private String stringLiteral() {
+        StringBuilder result = new StringBuilder();
+        advance(); // Skip the opening quote
+        while (currentChar != '\0' && currentChar != '\'') {
+            result.append(currentChar);
+            advance();
+        }
+        advance(); // Skip the closing quote
+        return result.toString();
+    }
 
     public List<Token> tokenize() {
         List<Token> tokens = new ArrayList<>();
@@ -57,7 +68,12 @@ public class Lexer {
             }
 
             if (Character.isDigit(currentChar)) {
-                tokens.add(new Token(TokenType.INTEGER, integer()));
+                String num = number();
+                if (num.contains(".")) {
+                    tokens.add(new Token(TokenType.NUMFLOAT, num));
+                } else {
+                    tokens.add(new Token(TokenType.NUMINTEGER, num));
+                }
                 continue;
             }
 
@@ -65,8 +81,20 @@ public class Lexer {
                 String id = identifier();
                 if (id.equals("int")) {
                     tokens.add(new Token(TokenType.INT, id));
+                } else if (id.equals("string")) {
+                    tokens.add(new Token(TokenType.STRING, id));
+                } else if (id.equals("float")) {
+                    tokens.add(new Token(TokenType.FLOAT, id));
+                } else if (id.equals("char")) {
+                    tokens.add(new Token(TokenType.CHAR, id));
                 } else if (id.equals("print")) {
                     tokens.add(new Token(TokenType.PRINT, id));
+                } else if (id.equals("loop")) {
+                    tokens.add(new Token(TokenType.LOOP, id));
+                } else if (id.equals("if")) {
+                    tokens.add(new Token(TokenType.IF, id));
+                } else if (id.equals("else")) {
+                    tokens.add(new Token(TokenType.ELSE, id));
                 } else {
                     tokens.add(new Token(TokenType.IDENTIFIER, id));
                 }
@@ -78,10 +106,57 @@ public class Lexer {
                 advance();
                 continue;
             }
+            
+            if (currentChar == '(') {
+                tokens.add(new Token(TokenType.OPENPARENTESE, "("));
+                advance();
+                continue;
+            }
+            
+            if (currentChar == ')') {
+                tokens.add(new Token(TokenType.CLOSEPARENTESE, ")"));
+                advance();
+                continue;
+            }
+            
+            if (currentChar == '{') {
+                tokens.add(new Token(TokenType.OPENBRACE, "{"));
+                advance();
+                continue;
+            }
+
+            if (currentChar == '}') {
+                tokens.add(new Token(TokenType.CLOSEBRACE, "}"));
+                advance();
+                continue;
+            }
+            
+            if (currentChar == '>') {
+                tokens.add(new Token(TokenType.MAIOR, ">"));
+                advance();
+                continue;
+            }
+
+            if (currentChar == '<') {
+                tokens.add(new Token(TokenType.MENOR, "<"));
+                advance();
+                continue;
+            }
 
             if (currentChar == ';') {
                 tokens.add(new Token(TokenType.SEMICOLON, ";"));
                 advance();
+                continue;
+            }
+            
+            if (currentChar == '+') {
+                tokens.add(new Token(TokenType.INCREMENT, ";"));
+                advance();
+                continue;
+            }
+
+            if (currentChar == '\'') {
+                tokens.add(new Token(TokenType.TEXTSTRING, stringLiteral()));
                 continue;
             }
 
